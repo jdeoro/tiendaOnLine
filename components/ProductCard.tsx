@@ -9,18 +9,16 @@ interface Props {
 }
 
 export const ProductCard = ({ product }: Props) => {
- 
-  
 
- const handlePress = (e: number) => {
-    console.warn("se ha presionado click en la imagen " + e);
-    router.navigate({
+const URL_IMG = process.env.EXPO_PUBLIC_IMG || "";
+
+const handlePress = (e: number) => {
+       router.navigate({
       pathname: "/(productos)/producto/[id]",
       params: { id: String(e) }
     });
  }
-  
-//`/(productos)/producto/${e}`
+
   return (
     <ThemedView 
       style={{
@@ -34,7 +32,6 @@ export const ProductCard = ({ product }: Props) => {
     >
       
       <TouchableOpacity onPress={() =>handlePress(product.id)}>
-        
         {product.images.length === 0 ? (
           <Image
             source={require('../assets/images/no-product-image.png')}
@@ -42,7 +39,7 @@ export const ProductCard = ({ product }: Props) => {
           />
         ) : (
           <Image
-            source={{ uri: 'https://products.desarrollosweb.net.ar/tiendas/'+  product.images[0] }}
+            source={{ uri: URL_IMG+  product.images[0] }}
             style={{ flex: 1, height: 200, width: '100%' }}
           />
         )}
@@ -52,8 +49,9 @@ export const ProductCard = ({ product }: Props) => {
           style={{ textAlign: 'center' }}
           darkColor={'black'}
         >
-          {product.id}-{product.title}
+         {product.title}
         </ThemedText>
+        <ThemedText style={{textAlign:"center" , fontWeight:'700'}}>${product.price}</ThemedText>
       </TouchableOpacity>
 
     </ThemedView>

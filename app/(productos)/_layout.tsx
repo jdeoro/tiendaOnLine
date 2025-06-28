@@ -24,9 +24,16 @@ const LayoutProductos = () => {
   return (
     <Stack>
       <Stack.Screen
-
-       name="(home)/index"
-       options={{ headerShown: true, title: "Productos", headerRight: () => <Logout /> }}
+        name="(home)/index"
+        options={{
+          headerShown: true,
+          title: "Productos",
+          headerRight: () => <Logout />,
+        }}
+      />
+      <Stack.Screen
+        name="producto/[id]"
+        options={{ headerShown: true, title: "Producto" }}
       />
     </Stack>
   );
