@@ -13,14 +13,12 @@ const LayoutProductos = () => {
 
   //console.log('estoy en layprod')
   if (estado === "checking") {
-    return <ActivityIndicator  size="large" color="#0000ff" />;  }
+    return <ActivityIndicator style={{ margin: 60 }} size="large" color="#00dfff" />;  }
 
   if (estado === "unauthenticated") {
     return <Redirect href="/auth/login"/>;
   }
   
-  //console.log("estado en layout productos: ", estado);
-
   return (
     <Stack>
       <Stack.Screen
@@ -35,6 +33,7 @@ const LayoutProductos = () => {
         name="producto/[id]"
         options={{ headerShown: true, title: "Producto" }}
       />
+      
     </Stack>
   );
 };

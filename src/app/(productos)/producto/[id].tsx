@@ -2,12 +2,14 @@ import { RemoteImage } from "@/src/components/RemoteImage";
 import { Producto } from "@/src/interfaces/product";
 import { useProductStore } from "@/src/store/UseProductStore";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
+
 import {
   ActivityIndicator,
   Image,
   Modal,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -20,19 +22,56 @@ const URL_IMG = process.env.EXPO_PUBLIC_IMG || "";
 
 const Productoid = () => {
   const [loading, setLoading] = useState(true);
+  const [cartCount, setCartCount] = useState(0);
+  const { quantitySelectedProducts,SetSelectedProducts } = useProductStore()
   const [modalVisible, setModalVisible] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const navigation = useNavigation();
   const { id } = useLocalSearchParams();
   const { ProducData } = useProductStore();
   const [productoinfo, setProductoInfo] = useState<Producto>();
-
+  const router = useRouter();
+  
   // Cart
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => <Ionicons name="cart-outline" size={25} />,
-    });
-  }, []);
+  // useEffect(() => {
+  //   navigation.setOptions({
+  //     headerRight: () => <Ionicons name="cart-outline" size={25} />,
+  //   });
+  // }, []);
+
+useEffect(() => {
+  navigation.setOptions({
+    headerRight: () => (
+      <Pressable style={{ marginRight: 15 }}
+        onPress={() => {
+          console.log("Carrito presionado");
+          router.push("/carrito")
+        }}
+      >
+        <Ionicons name="cart-outline" size={40} />
+        {quantitySelectedProducts > 0 && (
+          <View
+            style={{
+              position: "absolute",
+              right: -0,
+              top: -1,
+              backgroundColor: "red",
+              borderRadius: 10,
+              width: 20,
+              height: 20,
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: "white", fontSize: 10, fontWeight: "bold" }}>
+              {quantitySelectedProducts}
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    ),
+  });
+}, [quantitySelectedProducts]);
 
   useEffect(() => {
     const retproducto = async () => {
@@ -56,7 +95,6 @@ const Productoid = () => {
     }
   }, [productoinfo]);
 
-
   useEffect(() => {
     if (productoinfo) {
       navigation.setOptions({
@@ -73,6 +111,15 @@ const Productoid = () => {
       />
     );
   }
+ 
+ const onAddToCart = () => {{
+  setAddedToCart(true);
+  SetSelectedProducts(quantitySelectedProducts + 1);
+ 
+  console.log("Producto agregado al carrito:", productoinfo.id);
+
+  }
+ }
 
   return (
     <>
@@ -213,8 +260,8 @@ const Productoid = () => {
         <TouchableOpacity
           onPress={() => {
             if (selectedTalle) {
-              setAddedToCart(true);
-              // Acá podrías también llamar a tu función global de carrito
+              onAddToCart();
+              //setAddedToCart(true);
             }
           }}
           disabled={!selectedTalle}
