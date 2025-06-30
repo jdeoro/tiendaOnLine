@@ -1,4 +1,5 @@
 import { RemoteImage } from "@/src/components/RemoteImage";
+import { Size } from "@/src/interfaces/data";
 import { Producto } from "@/src/interfaces/product";
 import { useProductStore } from "@/src/store/UseProductStore";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,9 +22,7 @@ import {
 const URL_IMG = process.env.EXPO_PUBLIC_IMG || "";
 
 const Productoid = () => {
-  const [loading, setLoading] = useState(true);
-  const [cartCount, setCartCount] = useState(0);
-  const { quantitySelectedProducts,SetSelectedProducts } = useProductStore()
+  const { quantitySelectedProducts,SetSelectedProducts,addToCart, getCartItems } = useProductStore()
   const [modalVisible, setModalVisible] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
   const navigation = useNavigation();
@@ -31,7 +30,7 @@ const Productoid = () => {
   const { ProducData } = useProductStore();
   const [productoinfo, setProductoInfo] = useState<Producto>();
   const router = useRouter();
-  
+
   // Cart
   // useEffect(() => {
   //   navigation.setOptions({
@@ -115,9 +114,22 @@ useEffect(() => {
  const onAddToCart = () => {{
   setAddedToCart(true);
   SetSelectedProducts(quantitySelectedProducts + 1);
+
+  const newCartItem = {
+    idprod: productoinfo.id,
+    title: productoinfo.title,
+    price: productoinfo.price,
+    size: selectedTalle as Size ,
+    images: productoinfo.images[0] ,
+    quantity: 1, 
+  };
+
+addToCart(newCartItem);
+console.log("🧾 Carrito actualizado:", getCartItems());
+
  
   console.log("Producto agregado al carrito:", productoinfo.id);
-
+console.log()
   }
  }
 

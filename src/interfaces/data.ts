@@ -24,6 +24,15 @@ export enum Category {
     Remeras = "Remeras",
 }
 
+export interface CartItem {
+  idprod: number;
+  title: string;
+  price: string;
+  size: Size | null;
+  images: string;
+  quantity: number;
+}
+
 export enum Gender {
     Men = "men",
     Unisex = "unisex",
