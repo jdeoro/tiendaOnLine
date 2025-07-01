@@ -125,7 +125,7 @@ useEffect(() => {
   };
 
 addToCart(newCartItem);
-console.log("🧾 Carrito actualizado:", getCartItems());
+// console.log("🧾 Carrito actualizado:", getCartItems());
 
  
   console.log("Producto agregado al carrito:", productoinfo.id);
