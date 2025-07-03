@@ -1,3 +1,4 @@
+import HeaderCartButton from "@/src/components/HeaderCartButton";
 import { RemoteImage } from "@/src/components/RemoteImage";
 import { Size } from "@/src/interfaces/data";
 import { Producto } from "@/src/interfaces/product";
@@ -10,7 +11,6 @@ import {
   ActivityIndicator,
   Image,
   Modal,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -38,39 +38,47 @@ const Productoid = () => {
   //   });
   // }, []);
 
-useEffect(() => {
+  useEffect(() => {
   navigation.setOptions({
     headerRight: () => (
-      <Pressable style={{ marginRight: 15 }}
-        onPress={() => {
-          console.log("Carrito presionado");
-          router.push("/carrito")
-        }}
-      >
-        <Ionicons name="cart-outline" size={40} />
-        {quantitySelectedProducts > 0 && (
-          <View
-            style={{
-              position: "absolute",
-              right: -0,
-              top: -1,
-              backgroundColor: "red",
-              borderRadius: 10,
-              width: 20,
-              height: 20,
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ color: "white", fontSize: 10, fontWeight: "bold" }}>
-              {quantitySelectedProducts}
-            </Text>
-          </View>
-        )}
-      </Pressable>
+      <HeaderCartButton  />
     ),
   });
-}, [quantitySelectedProducts]);
+    }, [quantitySelectedProducts]);
+    
+// useEffect(() => {
+//   navigation.setOptions({
+//     headerRight: () => (
+//       <Pressable style={{ marginRight: 15 }}
+//         onPress={() => {
+//           console.log("Carrito presionado");
+//           router.push("/carrito")
+//         }}
+//       >
+//         <Ionicons name="cart-outline" size={40} />
+//         {quantitySelectedProducts > 0 && (
+//           <View
+//             style={{
+//               position: "absolute",
+//               right: -0,
+//               top: -1,
+//               backgroundColor: "red",
+//               borderRadius: 10,
+//               width: 20,
+//               height: 20,
+//               justifyContent: "center",
+//               alignItems: "center",
+//             }}
+//           >
+//             <Text style={{ color: "white", fontSize: 10, fontWeight: "bold" }}>
+//               {quantitySelectedProducts}
+//             </Text>
+//           </View>
+//         )}
+//       </Pressable>
+//     ),
+//   });
+// }, [quantitySelectedProducts]);
 
   useEffect(() => {
     const retproducto = async () => {
