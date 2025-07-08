@@ -2,6 +2,7 @@ import { SecureStorageAdapter } from '@/src/middelware/secure-storage';
 import { create } from 'zustand';
 import { authCheckStatus, authLogin } from '../actions/auth-actions';
 import { User } from '../interfaces/User';
+import { useProductStore } from './UseProductStore';
 //import { SecureStorageAdapter } from '@/helpers/adapters/secure-storage.adapter';
 
 export type AuthStatus = 'authenticated' | 'unauthenticated' | 'checking';
@@ -51,8 +52,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       await SecureStorageAdapter.deleteItem('token');
       return false;
     }
-    // SI hay token y usuario
-    //console.log("changeStatus: usuario autenticado ")
+    // Sí hay token y usuario
 
     set({
       estado: 'authenticated',
@@ -61,8 +61,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     });
     await SecureStorageAdapter.setItem('token', user.token);
     const tokengrabado = await SecureStorageAdapter.getItem('token');  
-    //console.log("SecureStorageAdapter.getItem.token: ", tokengrabado)
-    //console.log("estado: ", get().estado)
     return true;
   },  
 
@@ -73,7 +71,11 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   logout: async () => {
     SecureStorageAdapter.deleteItem('token');
+
     get().changeStatus(undefined);
     set({ estado: 'unauthenticated', token: undefined, user: undefined });
+    useProductStore.getState().deleteItems(); // Elimina los items del carrito de compras
+
   },
 }));
+

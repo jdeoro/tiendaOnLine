@@ -13,11 +13,11 @@ export const ListProduct = ({ product }: Props) => {
 const URL_IMG = process.env.EXPO_PUBLIC_IMG || "";
 
 const handlePress = (e: number) => {
-       router.navigate({
-      pathname: "/(productos)/producto/[id]",
-      params: { id: String(e) }
-    });
- }
+  router.navigate({
+    pathname: "/(productos)/producto/[id]",
+    params: { id: String(e) },
+  });
+};
 
   return (
     <ThemedView 

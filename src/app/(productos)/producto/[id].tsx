@@ -9,76 +9,46 @@ import React, { useEffect, useState } from "react";
 
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Modal,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  View
+  View,
 } from "react-native";
+import InputSpinner from "react-native-input-spinner";
 
 const URL_IMG = process.env.EXPO_PUBLIC_IMG || "";
 
 const Productoid = () => {
-  const { quantitySelectedProducts,SetSelectedProducts,addToCart, getCartItems } = useProductStore()
-  const [modalVisible, setModalVisible] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [cantidad, setCantidad] = useState("0");
+  const [addedToCart, setAddedToCart] = useState(false);
   const { id } = useLocalSearchParams();
   const { ProducData } = useProductStore();
   const [productoinfo, setProductoInfo] = useState<Producto>();
+
   const router = useRouter();
 
-  // Cart
-  // useEffect(() => {
-  //   navigation.setOptions({
-  //     headerRight: () => <Ionicons name="cart-outline" size={25} />,
-  //   });
-  // }, []);
+  const {
+    quantitySelectedProducts,
+    SetSelectedProducts,
+    addToCart,
+    getCartItems,
+  } = useProductStore();
+
 
   useEffect(() => {
-  navigation.setOptions({
-    headerRight: () => (
-      <HeaderCartButton  />
-    ),
-  });
-    }, [quantitySelectedProducts]);
-    
-// useEffect(() => {
-//   navigation.setOptions({
-//     headerRight: () => (
-//       <Pressable style={{ marginRight: 15 }}
-//         onPress={() => {
-//           console.log("Carrito presionado");
-//           router.push("/carrito")
-//         }}
-//       >
-//         <Ionicons name="cart-outline" size={40} />
-//         {quantitySelectedProducts > 0 && (
-//           <View
-//             style={{
-//               position: "absolute",
-//               right: -0,
-//               top: -1,
-//               backgroundColor: "red",
-//               borderRadius: 10,
-//               width: 20,
-//               height: 20,
-//               justifyContent: "center",
-//               alignItems: "center",
-//             }}
-//           >
-//             <Text style={{ color: "white", fontSize: 10, fontWeight: "bold" }}>
-//               {quantitySelectedProducts}
-//             </Text>
-//           </View>
-//         )}
-//       </Pressable>
-//     ),
-//   });
-// }, [quantitySelectedProducts]);
+    navigation.setOptions({
+      headerRight: () => <HeaderCartButton />,
+    });
+    // console.log("quantitySelectedProducts ->", quantitySelectedProducts);
+  }, [quantitySelectedProducts]);
 
   useEffect(() => {
     const retproducto = async () => {
@@ -105,7 +75,8 @@ const Productoid = () => {
   useEffect(() => {
     if (productoinfo) {
       navigation.setOptions({
-        title: productoinfo.title,})
+        title: productoinfo.title,
+      });
     }
   }, [productoinfo]);
 
@@ -118,28 +89,31 @@ const Productoid = () => {
       />
     );
   }
- 
- const onAddToCart = () => {{
-  setAddedToCart(true);
-  SetSelectedProducts(quantitySelectedProducts + 1);
 
-  const newCartItem = {
-    idprod: productoinfo.id,
-    title: productoinfo.title,
-    price: productoinfo.price,
-    size: selectedTalle as Size ,
-    images: productoinfo.images[0] ,
-    quantity: 1, 
+  const onAddToCart = () => {
+    {
+      if (parseInt(cantidad) <= 0) {
+        Alert.alert("Cantidad inválida", "La cantidad debe ser mayor a 0");
+        console.log("Cantidad debe ser mayor a 0");
+        return;
+      }
+      setAddedToCart(true);
+      console.log("cantidad a grabar :", cantidad);
+      
+      const newCartItem = {
+        idprod: productoinfo.id,
+        title: productoinfo.title,
+        price: productoinfo.price,
+        size: selectedTalle as Size,
+        images: productoinfo.images[0],
+        quantity: parseInt(cantidad, 10) || 1, // Aseguramos que sea un número
+      };
+      addToCart(newCartItem);
+      SetSelectedProducts(parseInt(cantidad)); // + 1
+      
+      console.log(`Producto: ${productoinfo.id} cantidad : ${cantidad} quantitySelectedProducts :${cantidad}` );
+    }
   };
-
-addToCart(newCartItem);
-// console.log("🧾 Carrito actualizado:", getCartItems());
-
- 
-  console.log("Producto agregado al carrito:", productoinfo.id);
-console.log()
-  }
- }
 
   return (
     <>
@@ -156,28 +130,27 @@ console.log()
         <View style={{ flexDirection: "row", marginBottom: 24 }}>
           {/* Miniaturas */}
           <View style={{ width: 80 }}>
-            {
-              productoinfo.images.map((item,index) => {
-                const fullUri = `${URL_IMG}${item}`;
-                return (
-                  <TouchableOpacity
-                    key={item}
-                    onPress={() => setSelectedImage(fullUri)}
-                  >
-                    <RemoteImage
-                      uri={fullUri}
-                      style={{
-                        width: 60,
-                        height: 60,
-                        marginBottom: 10,
-                        borderRadius: 6,
-                        borderWidth: selectedImage === fullUri ? 2 : 0,
-                        borderColor: "#007bff",
-                      }}
-                    />
-                  </TouchableOpacity>
-                );
-              })}
+            {productoinfo.images.map((item, index) => {
+              const fullUri = `${URL_IMG}${item}`;
+              return (
+                <TouchableOpacity
+                  key={item}
+                  onPress={() => setSelectedImage(fullUri)}
+                >
+                  <RemoteImage
+                    uri={fullUri}
+                    style={{
+                      width: 60,
+                      height: 60,
+                      marginBottom: 10,
+                      borderRadius: 6,
+                      borderWidth: selectedImage === fullUri ? 2 : 0,
+                      borderColor: "#007bff",
+                    }}
+                  />
+                </TouchableOpacity>
+              );
+            })}
           </View>
 
           {/* Imagen principal */}
@@ -249,7 +222,7 @@ console.log()
           {productoinfo.sizes?.map((talle) => {
             const isSelected = selectedTalle === talle;
             return (
-              <TouchableOpacity
+              <Pressable
                 key={talle}
                 onPress={() => setSelectedTalle(talle)}
               >
@@ -267,25 +240,37 @@ console.log()
                     {talle}
                   </Text>
                 </View>
-              </TouchableOpacity>
+              </Pressable>
             );
           })}
         </View>
 
-        {/* Género */}
-        {/* <Text style={{ color: "#555" }}>
-          Género: {productoinfo.gender || "No especificado"}
-        </Text> */}
+        <View style={style.spinnerContainer}>
+          <InputSpinner
+            max={10}
+            min={0}
+            step={1}
+            value={cantidad}
+            onChange={(num: number) => {
+              setCantidad(num.toString());
+              console.log(
+                `${num} productos seleccioados`
+              );
+            }}
+            colorMax="#f04048"
+            colorMin="#40c5f4"
+          />
+        </View>
 
-        <TouchableOpacity
-          onPress={() => {
+        {/* Botón Agregar al carrito */}
+        <Pressable
+          onPress={() => { 
             if (selectedTalle) {
               onAddToCart();
-              //setAddedToCart(true);
             }
           }}
-          disabled={!selectedTalle}
-          style={{
+          disabled={!selectedTalle  }
+          style={{ 
             backgroundColor: selectedTalle ? "#007bff" : "#ccc",
             paddingVertical: 12,
             borderRadius: 8,
@@ -293,12 +278,10 @@ console.log()
             alignItems: "center",
           }}
         >
-          <Text
-            style={{ color: "#fff", fontWeight: "600", paddingVertical: 10 }}
-          >
+          <Text style={{ color: "#fff", fontWeight: "600", paddingVertical: 10 }}>
             Agregar al carrito
           </Text>
-        </TouchableOpacity>
+        </Pressable>
 
         {addedToCart && (
           <Text style={{ color: "green", marginTop: 10 }}>
@@ -364,6 +347,11 @@ export const style = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
+  spinnerContainer: {
+    marginTop: 10,
+    alignItems: "center",
+  },
+  
 });
 
 export default Productoid;

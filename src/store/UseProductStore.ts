@@ -6,20 +6,19 @@ export interface Product {
   //propiedades
   pageActual: number;
   totalPage: number;
-  quantitySelectedProducts: number;
-  cartItems: CartItem[];
-  setCartItems: (items: CartItem[]) => void;
-  getCartItems: () => CartItem[];
-  addToCart: (item: CartItem) => void;
+  quantitySelectedProducts: number;  // productos seleccionados.
+  cartItems: CartItem[];        // productos del carrito de compras
 
-
-
-  //metodos
+  setCartItems: (items: CartItem[]) => void; // establece los items del carrito de compras
+  getCartItems: () => CartItem[]; // obtiene los items del carrito de compras
+  addToCart: (item: CartItem) => void; // agrega un item al carrito de compras
   ProductsList: (desde: number, hasta: number) => Promise<any>;
   ProducData: (id: number) => Promise<any>;
   setPage: (page: number) => void;
   setTotalPage: (totalPage: number) => void;
   SetSelectedProducts: (quantity: number) => void;
+  deleteItems : () => void; // elimina los items del carrito de compras
+  editItems: (item: CartItem) => void; // edita un item del carrito de compras
 }
 
 export const useProductStore = create<Product>()((set, get) => ({
@@ -47,9 +46,11 @@ export const useProductStore = create<Product>()((set, get) => ({
   },
 
   setPage: (page: number) => set(() => ({ pageActual: page })),
+  
   setTotalPage: (totalPage: number) => set(() => ({ totalPage: totalPage })),
+
   SetSelectedProducts(quantity) {
-    set(() => ({ quantitySelectedProducts: quantity }));
+    set(( state ) => ({ quantitySelectedProducts:  state.quantitySelectedProducts + quantity }));
   },
   setCartItems: (items) => set({ cartItems: items }),
 
@@ -60,7 +61,7 @@ export const useProductStore = create<Product>()((set, get) => ({
   })),
 
  addToCart: (newItem) => {
-    const currentItems = get().cartItems;
+    const currentItems = get().cartItems;  
 
     const exists = currentItems.find(
       (item) =>
@@ -78,6 +79,20 @@ export const useProductStore = create<Product>()((set, get) => ({
       set({ cartItems: [...currentItems, newItem] });
     }
   },
-
+  deleteItems: () => {
+    set({ cartItems: [] });
+    set({ quantitySelectedProducts: 0 }); 
+  },
+  editItems: (updatedItem) => {
+    console.log("editItems called with:", updatedItem);
+    set((state) => ({
+      cartItems: state.cartItems.map((item) =>
+        item.idprod === updatedItem.idprod && item.size === updatedItem.size
+          ? { ...item, quantity: updatedItem.quantity  }
+          : item
+      ),
+      quantitySelectedProducts:  updatedItem.quantity, // Actualiza la cantidad total de productos seleccionados
+    }));
+  },
 
 }));

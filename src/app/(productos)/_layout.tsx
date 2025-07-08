@@ -11,7 +11,7 @@ const LayoutProductos = () => {
     checkStatus();
   }, []);
 
-  //console.log('estoy en layprod')
+
   if (estado === "checking") {
     return <ActivityIndicator style={{ margin: 60 }} size="large" color="#00dfff" />;  }
 
