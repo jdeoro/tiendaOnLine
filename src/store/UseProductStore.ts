@@ -46,26 +46,27 @@ export const useProductStore = create<Product>()((set, get) => ({
   },
 
   setPage: (page: number) => set(() => ({ pageActual: page })),
-  
+
   setTotalPage: (totalPage: number) => set(() => ({ totalPage: totalPage })),
 
   SetSelectedProducts(quantity) {
-    set(( state ) => ({ quantitySelectedProducts:  state.quantitySelectedProducts + quantity }));
+    set((state) => ({
+      quantitySelectedProducts: state.quantitySelectedProducts + quantity,
+    }));
   },
   setCartItems: (items) => set({ cartItems: items }),
 
+  getCartItems: () =>
+    get().cartItems.map((item) => ({
+      ...item,
+      images: item.images || "",
+    })),
 
-  getCartItems: () => get().cartItems.map(item => ({
-    ...item,
-    images: item.images || "",
-  })),
-
- addToCart: (newItem) => {
-    const currentItems = get().cartItems;  
+  addToCart: (newItem) => {
+    const currentItems = get().cartItems;
 
     const exists = currentItems.find(
-      (item) =>
-        item.idprod === newItem.idprod && item.size === newItem.size
+      (item) => item.idprod === newItem.idprod && item.size === newItem.size
     );
 
     if (exists) {
@@ -81,18 +82,43 @@ export const useProductStore = create<Product>()((set, get) => ({
   },
   deleteItems: () => {
     set({ cartItems: [] });
-    set({ quantitySelectedProducts: 0 }); 
-  },
-  editItems: (updatedItem) => {
-    console.log("editItems called with:", updatedItem);
-    set((state) => ({
-      cartItems: state.cartItems.map((item) =>
-        item.idprod === updatedItem.idprod && item.size === updatedItem.size
-          ? { ...item, quantity: updatedItem.quantity  }
-          : item
-      ),
-      quantitySelectedProducts:  updatedItem.quantity, // Actualiza la cantidad total de productos seleccionados
-    }));
+    set({ quantitySelectedProducts: 0 });
   },
 
+  editItems: (updatedItem) => {
+    console.log("editItems called with:", updatedItem);
+    const contador=0;
+
+
+    set((state) => {
+      let newCartItems;
+
+      if (updatedItem.quantity === 0) {
+        // Elimina el item si la cantidad es 0
+        newCartItems = state.cartItems.filter(
+          (item) =>
+            !(
+              item.idprod === updatedItem.idprod &&
+              item.size === updatedItem.size
+            )
+        );
+      } else {
+        // Actualiza la cantidad si es mayor a 0
+        newCartItems = state.cartItems.map((item) =>
+          item.idprod === updatedItem.idprod && item.size === updatedItem.size
+            ? { ...item, quantity: updatedItem.quantity }
+            : item
+        );
+      }
+        const totalQuantity = newCartItems.reduce((acumulador, item) => {
+          return acumulador + item.quantity;
+        }, 0);
+
+      return {
+        cartItems: newCartItems,
+      
+        quantitySelectedProducts: totalQuantity,
+      };
+    });
+  },
 }));
