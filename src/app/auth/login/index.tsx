@@ -1,11 +1,9 @@
-import { ExternalLink } from '@/src/components/ExternalLink'
 import { ThemedText } from '@/src/components/ThemedText'
 import ThemedTextInput from '@/src/components/ThemedTextInput'
-import { useThemeColor } from '@/src/hooks/useThemeColor'
 import { useAuthStore } from '@/src/store/UseAuthStore'
 import { router } from 'expo-router'
 import React, { useState } from 'react'
-import { Alert, Button, KeyboardAvoidingView, StyleSheet, useWindowDimensions, View } from 'react-native'
+import { Alert, Button, KeyboardAvoidingView, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native'
 
 const IndexLogin = () => {
   const { height } = useWindowDimensions();
@@ -15,8 +13,7 @@ const IndexLogin = () => {
     password :''
    })
 
-  const bkcolor  = useThemeColor({}, 'background')
-  const { estado, login , checkStatus} = useAuthStore(); 
+  const {  login } = useAuthStore(); 
 
   const handleLogin = async () => {
     const { email, password } = form;
@@ -68,8 +65,9 @@ const IndexLogin = () => {
           onChangeText={(value) => setForm({ ...form, password: value })}
         />
 
-        <View style={{ marginTop: 20, marginHorizontal: 10 }}>
-          <Button title="Login" onPress={handleLogin} />
+        <View style={{ marginTop: 20,    width: '100%' ,borderRadius:10, }}>
+         {/* <Pressable  onPress={handleLogin}><ThemedText>Login</ThemedText></Pressable> */}
+          <Button title="Login" onPress={handleLogin}  />
         </View>
 
         <View
@@ -80,24 +78,41 @@ const IndexLogin = () => {
             marginHorizontal: 10,
           }}
         >
-          <ExternalLink href="/auth/register">
+          {/* <ExternalLink href="/auth/register">
             <ThemedText
               type="subtitle"
               style={{
                 fontFamily: "RobotoThin",
-                fontSize: 10,
+                fontSize: 12,
                 paddingTop: 10,
                 color: "gray",
+                paddingBottom:10,
               }}
             >
               Olvidaste tu contraseña?
             </ThemedText>
-          </ExternalLink>
+          </ExternalLink> */}
+          <Pressable
+            onPress={() => router.navigate("/auth/lostpass")}
+            style={{ display: "flex", flexDirection: "row" }}
+          >
+            <ThemedText type="link">Olvidaste tu contraseña?</ThemedText>
+          </Pressable>
 
-          <ExternalLink href="/auth/register">
+          <View style={{ display:'flex' , flexDirection:'row'}}>
+            <ThemedText type="subtitle">¿No tienes cuenta , </ThemedText>
+            <Pressable
+              onPress={() => router.navigate("/auth/register")}
+              style={{ display: "flex", flexDirection: "row" }}
+            >
+              <ThemedText type="link">¿crear una?</ThemedText>
+            </Pressable>
+          </View>
+
+          {/* <ExternalLink href="/auth/register">
             <ThemedText>¿No tienes cuenta,</ThemedText>
             <ThemedText>¿crear una?</ThemedText>
-          </ExternalLink>
+          </ExternalLink> */}
         </View>
       </View>
     </KeyboardAvoidingView>

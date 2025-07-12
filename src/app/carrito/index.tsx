@@ -16,20 +16,6 @@ const CarritoScreen = () => {
   const onAddToCart = () => {
     {
       SetSelectedProducts(quantitySelectedProducts + 1);
-
-      // const newCartItem = {
-      //   idprod: productoinfo.id,
-      //   title: productoinfo.title,
-      //   price: productoinfo.price,
-      //   size: selectedTalle as Size,
-      //   images: productoinfo.images[0],
-      //   quantity: parseInt(cantidad, 10) || 1, // Aseguramos que sea un número
-      // };
-
-     // addToCart(newCartItem);
-
-     // console.log("Producto agregado al carrito:", productoinfo.id);
-     // console.log(`cantidad -> ${cantidad}` );
       console.log(`quantitySelectedProducts : ${quantitySelectedProducts}`);      
     }
   };  

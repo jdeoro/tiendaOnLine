@@ -1,15 +1,17 @@
 //import { getProducts } from '@/actions/product-actions';
+import HeaderCartButton from '@/src/components/HeaderCartButton';
 import { ListProduct } from '@/src/components/ListProduct';
 import { useThemeColor } from '@/src/hooks/useThemeColor';
 import { Producto } from '@/src/interfaces/data';
 import { useProductStore } from '@/src/store/UseProductStore';
+import { useNavigation } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 
 
 const ProductsHome = () => {
   const {  ProductsList  } = useProductStore()
-
+  const navigation = useNavigation();
   const foreColor = useThemeColor({}, 'tint')
   const backgroundColor = useThemeColor( {} ,'background')
   const backgroundGris  = useThemeColor( {}, 'backSecondary')
@@ -19,13 +21,12 @@ const ProductsHome = () => {
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<Producto[]>([]);
   
-  // useEffect(() => {
-  // navigation.setOptions({
-  //   headerRight: () => (
-  //     <HeaderCartButton  />
-  //   ),
-  // });
-  // }, [quantitySelectedProducts]);
+  const {
+    quantitySelectedProducts,
+    SetSelectedProducts,
+    addToCart,
+    getCartItems,
+  } = useProductStore();
 
   const loadNextPage = async () => {
         if(loading) {
@@ -65,6 +66,12 @@ const ProductsHome = () => {
     loadNextPage()
   }, [])
 
+    useEffect(() => {
+      navigation.setOptions({
+        headerRight: () => <HeaderCartButton />,
+      });
+      // console.log("quantitySelectedProducts ->", quantitySelectedProducts);
+    }, [quantitySelectedProducts]);
   
   return (
     <View style={{ paddingHorizontal: 10, ...StyleSheet.absoluteFillObject }}>
