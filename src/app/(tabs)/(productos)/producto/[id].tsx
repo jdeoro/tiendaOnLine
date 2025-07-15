@@ -56,7 +56,7 @@ const Productoid = () => {
       const result = await ProducData(numericId);
       if (result) {
         setProductoInfo(result.producto);
-        console.log("productoinfo ->", result);
+        //console.log("productoinfo ->", result);
       }
     };
 
@@ -94,11 +94,11 @@ const Productoid = () => {
     {
       if (parseInt(cantidad) <= 0) {
         Alert.alert("Cantidad inválida", "La cantidad debe ser mayor a 0");
-        console.log("Cantidad debe ser mayor a 0");
+        //console.log("Cantidad debe ser mayor a 0");
         return;
       }
       setAddedToCart(true);
-      console.log("cantidad a grabar :", cantidad);
+      console.log(`cantidad a grabar ${cantidad} productos `);
       
       const newCartItem = {
         idprod: productoinfo.id,

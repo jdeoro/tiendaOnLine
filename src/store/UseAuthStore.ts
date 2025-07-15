@@ -79,7 +79,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     const resp = await authRegister(email, password, fullname);
 
     if (!resp) {
-      console.log("Error en login: No se obtuvo respuesta del servidor");
+      console.log("Error en Register: No se obtuvo respuesta del servidor");
       return false;
     } else {
       return get().changeStatus(resp);

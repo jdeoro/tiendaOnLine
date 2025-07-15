@@ -1,13 +1,20 @@
-import { Ionicons } from '@expo/vector-icons';
-import { StyleProp, ViewStyle, TouchableOpacity } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { StyleProp, Text, TouchableOpacity, ViewStyle } from 'react-native';
+import { useThemeColor } from '../hooks/useThemeColor';
+
 
 interface Props {
-  iconName: keyof typeof Ionicons.glyphMap;
+  iconName: keyof typeof MaterialIcons.glyphMap //.getRawGlyphMap; // Ionicons.glyphMap;
   onPress: () => void;
   style?: StyleProp<ViewStyle>;
+  children?: React.ReactNode;
+
 }
 
-export const FAB = ({ style, iconName, onPress }: Props) => {
+export const FAB = ({ style, iconName, onPress, children }: Props) => {
+  const foreColor = useThemeColor({}, 'primary')
+  const backColor = useThemeColor({}, 'background')
+
   return (
     <TouchableOpacity
       style={[
@@ -16,13 +23,16 @@ export const FAB = ({ style, iconName, onPress }: Props) => {
 
           position: 'absolute',
           bottom: 30,
-          right: 20,
+          right: 90,
 
-          width: 60,
-          height: 60,
+          // width: 60,
+          // height: 60,
+
+          paddingHorizontal: 20,
+          paddingVertical: 12,
 
           shadowColor: 'black',
-          backgroundColor: 'black',
+          backgroundColor: backColor,
           shadowOffset: {
             width: 0,
             height: 10,
@@ -30,8 +40,9 @@ export const FAB = ({ style, iconName, onPress }: Props) => {
           shadowOpacity: 0.4,
           shadowRadius: 10,
           elevation: 3,
-          borderRadius: 13,
+          borderRadius: 30,
 
+          flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
         },
@@ -39,7 +50,13 @@ export const FAB = ({ style, iconName, onPress }: Props) => {
       ]}
       onPress={onPress}
     >
-      <Ionicons name={iconName} size={30} color="white" />
+      <MaterialIcons name={iconName} size={30} color={foreColor} />
+
+     {children && <Text style={{ color: foreColor }}>{children}</Text>}
+
+
     </TouchableOpacity>
+
+
   );
 };

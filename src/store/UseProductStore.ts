@@ -72,10 +72,15 @@ export const useProductStore = create<Product>()((set, get) => ({
     if (exists) {
       const updatedItems = currentItems.map((item) =>
         item.idprod === newItem.idprod && item.size === newItem.size
-          ? { ...item, quantity: item.quantity + newItem.quantity }
+          ? { ...item,
+             quantity: item.quantity + newItem.quantity,
+            }
           : item
       );
       set({ cartItems: updatedItems });
+
+      //console.log(`El producto ya existia: ${updatedItems.}`)
+
     } else {
       set({ cartItems: [...currentItems, newItem] });
     }

@@ -1,11 +1,46 @@
+import { useAuthStore } from '@/src/store/UseAuthStore';
 import { useRouter } from 'expo-router';
-import { Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { useState } from 'react';
+import { Alert, Image, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RegistroScreen = () => {
   const { width } = useWindowDimensions();
   const ASPECT_RATIO_STORE_IMAGE = 1.6; 
   const router = useRouter();
+  const {  register } = useAuthStore(); 
+
+  const [ form, setForm ] = useState({
+    email: '',  
+    password :'',
+    nombre : '',
+    confirmpass : '',
+   })
+
+  const onHandlePress = async () => {
+    const { email, password, confirmpass,nombre } = form;
+    if ( password !== confirmpass  ){
+      Alert.alert("No coincide el password ")
+      return
+    }
+
+    if ( email == '' || password == '' || confirmpass == '' || nombre == ''  ) {
+      Alert.alert("Todos los campos son obligatorios")
+      return
+    }
+
+    const resultado = await register(email, password,nombre);
+
+    if (resultado) {
+      Alert.alert("Felicitiaciones", "Se ha registrado el usuario.");      
+      router.replace("/");
+      return;
+    } else {
+     Alert.alert("Error", "Usuario y/o contraseña incorrectos");
+    }
+
+  }
+
   return (
     // Usa SafeAreaView para evitar que el contenido se solape con la barra de estado y la notch
 
@@ -40,8 +75,10 @@ const RegistroScreen = () => {
             />
 
             <TextInput
+              value={form.nombre}
               style={styles.input}
               placeholder="Nombre"
+              onChangeText={(value) => setForm({ ...form, nombre: value })}
             />
 
           </View>
@@ -53,9 +90,12 @@ const RegistroScreen = () => {
             />
 
             <TextInput
+              value={form.email}            
               style={styles.input}
               placeholder="Correo electrónico"
               keyboardType="email-address"
+              onChangeText={(value) => setForm({ ...form, email: value })}
+
             />
           </View>
 
@@ -66,8 +106,10 @@ const RegistroScreen = () => {
             />
 
             <TextInput
+              value={form.password}            
               style={styles.input}
               placeholder="Contraseña"
+              onChangeText={(value) => setForm({ ...form, password: value })}
               secureTextEntry
             />
           </View>
@@ -78,17 +120,19 @@ const RegistroScreen = () => {
             />
 
             <TextInput
+              value={form.confirmpass}
               style={styles.input}
               placeholder="Confirmar Contraseña"
               secureTextEntry
+              onChangeText={(value) => setForm({ ...form, confirmpass : value })}
             />
           </View>
 
-          <TouchableOpacity style={styles.button}>
+          <TouchableOpacity style={styles.button} onPress={ onHandlePress}>
             <Text style={styles.buttonText}>Registrarse →</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity             onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => router.back()}>
             <Text style={styles.loginText}>Ingresar</Text>
           </TouchableOpacity>
         </View>
