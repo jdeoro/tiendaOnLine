@@ -55,7 +55,9 @@ const RegistroScreen = () => {
             source={require("@/assets/images/tiendasonline-01.png")} 
             style={[
               styles.storeImage,
-              { width: width * 0.7, aspectRatio: 0.75 },
+              { width: width * 0.7,
+                height: width * 0.7 * 0.75, // altura basada en aspectRatio
+                },
             ]} 
             resizeMode="contain"
           />
