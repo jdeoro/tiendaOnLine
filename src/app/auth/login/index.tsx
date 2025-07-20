@@ -50,7 +50,7 @@ const IndexLogin = () => {
             color: "gray",
           }}
         >
-          Por favor , jaja ingrese para continuar
+          Por favor, ingrese para continuar
         </ThemedText>
         <ThemedTextInput
           value={form.email}
