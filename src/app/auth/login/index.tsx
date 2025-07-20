@@ -1,9 +1,10 @@
+import ThemedButton from '@/src/components/ThemedButton'
 import { ThemedText } from '@/src/components/ThemedText'
 import ThemedTextInput from '@/src/components/ThemedTextInput'
 import { useAuthStore } from '@/src/store/UseAuthStore'
 import { router } from 'expo-router'
 import React, { useState } from 'react'
-import { Alert, Button, KeyboardAvoidingView, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native'
+import { Alert, KeyboardAvoidingView, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native'
 
 const IndexLogin = () => {
   const { height } = useWindowDimensions();
@@ -67,7 +68,10 @@ const IndexLogin = () => {
 
         <View style={{ marginTop: 20,    width: '100%' ,borderRadius:10, }}>
          {/* <Pressable  onPress={handleLogin}><ThemedText>Login</ThemedText></Pressable> */}
-          <Button title="Login" onPress={handleLogin}  />
+          {/* <ThemedButton title="Login" onPress={handleLogin}  > */}
+            <ThemedButton  onPress={handleLogin}>
+              Login
+            </ThemedButton>
         </View>
 
         <View
