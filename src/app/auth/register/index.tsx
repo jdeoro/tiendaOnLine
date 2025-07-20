@@ -50,21 +50,18 @@ const RegistroScreen = () => {
         style={styles.keyboardAvoidingContainer} 
       >
 
-        <View style={styles.imageContainer}>
+        {/* <View style={styles.imageContainer}>
           <Image
             source={require("@/assets/images/tiendasonline-01.png")} 
             style={[
               styles.storeImage,
-              { width: width * 0.7,
-                height: width * 0.7 * 0.75, // altura basada en aspectRatio
-                },
+              { width: width * 0.7, aspectRatio: 0.75 },
             ]} 
             resizeMode="contain"
           />
-        </View>
+        </View> */}
 
         <View style={styles.contentContainer}>
-
           <Text style={styles.title}>Crear cuenta</Text>
           <Text style={styles.subtitle}>
             Por favor crea una cuenta para continuar
