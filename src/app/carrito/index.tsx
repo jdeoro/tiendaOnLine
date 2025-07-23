@@ -1,6 +1,7 @@
 import { FAB } from "@/src/components/FAB";
 import { useThemeColor } from "@/src/hooks/useThemeColor";
 import { useProductStore } from "@/src/store/UseProductStore";
+import { router } from "expo-router";
 import { useState } from "react";
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 import InputSpinner from "react-native-input-spinner";
@@ -16,8 +17,9 @@ const CarritoScreen = () => {
   console.log("Productos en el carrito:", CartProduct);
   console.log("quantitySelectedProducts:", quantitySelectedProducts);
 
-  const total = CartProduct.reduce((acc, item) => acc + parseFloat(item.price) * item.quantity, 0);
-  const totalDecimal = parseFloat(total.toFixed(2));
+  const total = CartProduct.reduce((acc, item) => acc + parseFloat(item.price) * item.quantity, 0); 
+  const cantidadProd = CartProduct.reduce(( cantidad, item) => cantidad +  item.quantity, 0); 
+  const totalDecimal = parseFloat(total.toFixed(2));  
 
   console.log(totalDecimal); 
 
@@ -30,11 +32,23 @@ const CarritoScreen = () => {
   // }, [CartProduct])
   
 
-  const onAddToCart = () => {
-    {
-      SetSelectedProducts(quantitySelectedProducts + 1);
-      console.log(`quantitySelectedProducts : ${quantitySelectedProducts}`);      
-    }
+  const payBill = () => {
+    // Aquí puedes manejar la lógica de pago, por ejemplo, abrir un modal o navegar a otra pantalla
+    // con el componente <MercadoPagoButton /> si es necesario.
+    // SetSelectedProducts(quantitySelectedProducts + 1);
+    // console.log(`quantitySelectedProducts : ${quantitySelectedProducts}`);    
+  
+  //Alert.alert("aca estoy")
+    router.push({
+      pathname: '/modal/pay/pay+modal',
+      params: {
+        title: 'Pago pedidos de productos',
+        quantity: cantidadProd,
+        unit_price: totalDecimal,
+      },
+    });    
+
+
   };  
 
   // PRODUCTOS EN EL CARRITO 
@@ -97,7 +111,7 @@ const CarritoScreen = () => {
           <Text style={{ fontStyle: "italic" }}>El carrito está vacío</Text>
         }
       />
-      <FAB iconName="paid"  onPress={() => { } }><Text>{totalDecimal}</Text></FAB>
+      <FAB iconName="paid"  onPress={() => { payBill() } }><Text>{totalDecimal}</Text></FAB>
     </View>
   );
 };

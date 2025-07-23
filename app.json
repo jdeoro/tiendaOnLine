@@ -21,7 +21,30 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.jdeoro.tiendasOnline"
+      "package": "com.jdeoro.tiendasOnline",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "data": [
+            {
+              "scheme": "prutien",
+              "host": "checkout",
+              "pathPrefix": "/success"
+            },
+            {
+              "scheme": "prutien",
+              "host": "checkout",
+              "pathPrefix": "/failure"
+            },
+            {
+              "scheme": "prutien",
+              "host": "checkout",
+              "pathPrefix": "/pending"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "bundler": "metro",
