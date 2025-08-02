@@ -4,16 +4,24 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { router, Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { Alert, Linking } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Linking } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import RedirectingScreen from "@/src/components/RedirectingScreen";
+
+// import { Button } from 'react-native';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const backgroundColor = useThemeColor({}, "background");
+
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [paymentInfo, setPaymentInfo] = useState<{ id: string; estado: string } | null>(null);
+  
+
   const [loaded] = useFonts({
     SpaceMono: require("@/assets/fonts/SpaceMono-Regular.ttf"),
     RobotoBlack: require("@/assets/fonts/Roboto-Black.ttf"),
@@ -27,6 +35,9 @@ export default function RootLayout() {
   // 🎯 Escuchar Deep Links cuando el usuario vuelve
 useEffect(() => {
   const handleDeepLink = async ({ url }: { url: string }) => {
+
+  console.log("🚨 handleDeepLink DISPARADO con URL:", url); // 👈 NUEVO LOG
+
     try {
       const parsedUrl = new URL(url);
       const cleanPath = parsedUrl.pathname.replace(/^\/--\//, "").replace(/^\/+/, "");
@@ -37,17 +48,22 @@ useEffect(() => {
       console.log("🔗 Deep Link URL:", url);
       console.log("📦 Parámetros:", params);
       console.log("🛣️ Ruta limpia:", cleanPath);
+      console.log("🚀 Entró a handleDeepLink");
+
+      const idPedido = params.external_reference ?? "";
+      const estado = params.collection_status ?? "aprobado";
+      const idPago = params.payment_id ?? "?";
+
+      console.log("🧼 cleanPath evaluado:", cleanPath);
 
       if (cleanPath === "success") {
-        Alert.alert(
-          "✅ Pago aprobado",
-          `ID: ${params.payment_id ?? "?"}\nEstado: ${params.collection_status ?? "?"}`
-        );
+        console.log("🎯 Redirección SUCCESS: seteando redirecting");        
 
-        const idPedido = params.external_reference ?? "";
-        const estado = params.collection_status ?? "aprobado";
+        setIsRedirecting(true); // 👈 Activa pantalla de carga con mensaje
+        setPaymentInfo({ id: idPago, estado }); // 👈 Muestra los datos del pago
         
-        console.log("🧾 ID de pedido recibido:", idPedido);
+        console.log("🧾 paymentInfo seteado:", { id: idPago, estado });
+
 
         if (idPedido) {
           try {
@@ -68,26 +84,40 @@ useEffect(() => {
           console.warn("⚠️ ID de pedido no disponible");
         }
 
-        router.replace("/(tabs)/(productos)/(home)");
+        setTimeout(() => {
+          router.replace("/(tabs)/(productos)/(home)");
+        }, 4000);
       } else if (cleanPath === "failure") {
-        Alert.alert("❌ Pago rechazado", "Podés intentar nuevamente");
-        router.replace("/(tabs)/(productos)/(home)");
+        console.log("🎯 Redirección FAILURE: seteando redirecting");        
+        setIsRedirecting(true);
+        setPaymentInfo({ id: idPago, estado: "rechazado" });
+
+        setTimeout(() => {
+          router.replace("/(tabs)/(productos)/(home)");
+        }, 4000);
       } else if (cleanPath === "pending") {
-        Alert.alert("⏳ Pago pendiente", "Te notificaremos cuando se confirme");
-        router.replace("/(tabs)/(productos)/(home)");
+        console.log("🎯 Redirección PENDING: seteando redirecting");        
+        setIsRedirecting(true);
+        setPaymentInfo({ id: idPago, estado: "pendiente" });
+
+        setTimeout(() => {
+          router.replace("/(tabs)/(productos)/(home)");
+        }, 4000);
+      } else {
+          console.log("❓ Ruta desconocida o no match:", cleanPath);
       }
     } catch (error) {
       console.error("💥 Error procesando Deep Link:", error);
     }
   };
-
-  // Al volver desde segundo plano
   Linking.getInitialURL().then((url) => {
+    console.log("🔎 Linking.getInitialURL devolvió:", url); // 👈 NUEVO LOG    
+
     if (url) handleDeepLink({ url });
   });
-
-  // Al recibir mientras está activa
   const subscription = Linking.addEventListener("url", handleDeepLink);
+
+
   return () => subscription.remove();
 }, []);
 
@@ -95,16 +125,35 @@ useEffect(() => {
     return null;
   }
 
+  console.log("🎯 Redirección SUCCESS: seteando redirecting");
+
   return (
     <GestureHandlerRootView
       style={{ backgroundColor: backgroundColor, flex: 1 }}
     >
       <SafeAreaProvider>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <Stack screenOptions={{ headerShown: false }}></Stack>
-          <StatusBar style="auto" />
+        <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+
+{isRedirecting ? (
+  <RedirectingScreen paymentInfo={paymentInfo} />
+) : (
+  <>
+    <Stack screenOptions={{ headerShown: false }} />
+    <StatusBar style="auto" />
+
+            {/* <Button
+              title="Forzar redirección"
+              onPress={() => {
+                setIsRedirecting(true);
+                setPaymentInfo({ id: "TEST1234", estado: "aprobado" });
+              }}
+            /> */}
+
+  </>
+)}
+
+
+
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
