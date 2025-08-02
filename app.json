@@ -29,17 +29,17 @@
             {
               "scheme": "prutien",
               "host": "checkout",
-              "pathPrefix": "/success"
+              "pathPrefix": "success"
             },
             {
               "scheme": "prutien",
               "host": "checkout",
-              "pathPrefix": "/failure"
+              "pathPrefix": "failure"
             },
             {
               "scheme": "prutien",
               "host": "checkout",
-              "pathPrefix": "/pending"
+              "pathPrefix": "pending"
             }
           ],
           "category": ["BROWSABLE", "DEFAULT"]

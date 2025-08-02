@@ -1,68 +1,99 @@
+import ThemedButton from '@/src/components/ThemedButton';
+import { ThemedText } from '@/src/components/ThemedText';
+import { ThemedView } from '@/src/components/ThemedView';
+import { useProductStore } from '@/src/store/UseProductStore';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
-import { useEffect } from 'react';
-import { Alert, Button, Linking, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text } from 'react-native';
+import { WebView } from 'react-native-webview';
+
 
 export default function PayModal() {
+  const { placeOrder} = useProductStore();    
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const { title, quantity, unit_price } = useLocalSearchParams();
   const router = useRouter();
+  const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 
+  // se genera nuevamente el title una vez que se tiene el nro.de compra
   const handleCheckout = async () => {
-
     try {
-      const response = await fetch('https://6f74e5023b7a.ngrok-free.app/create_preference', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          quantity: Number(quantity),
-          unit_price: Number(unit_price),
-        }),
-      });
+      const result = await placeOrder();
+      console.log("Resultado Order #", result);
 
-      const data = await response.json();
-      if (data.init_point) await WebBrowser.openBrowserAsync(data.init_point);
-      else alert('No se recibió el link de pago');
+      const response = await fetch(
+        "https://api.desarrollosweb.net.ar/create_preference",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: "Nro.Orden # " + result.toString(),
+            quantity: Number(quantity),
+            unit_price: Number(unit_price),
+          }),
+        }
+      );
+
+    const data = await response.json();
+    // if (data.init_point) await WebBrowser.openBrowserAsync(data.init_point);
+         if (data.sandbox_init_point) {
+          setCheckoutUrl(data.sandbox_init_point); 
+         }else{
+          alert("No se recibió el link de pago");
+          console.log(data)
+          } 
+
+      console.log(result);
+      return result;
     } catch (error) {
-      alert('Hubo un problema al iniciar el pago');
-      console.error(error);
+      console.log(error);
     }
   };
 
-  // 🎯 Escuchar Deep Links cuando el usuario vuelve
-  useEffect(() => {
-    const handleDeepLink = ({ url }: { url: string }) => {
-      if (url.includes('checkout/success')) {
-        Alert.alert('✅ Pago aprobado', 'Gracias por tu compra');
-        router.dismiss(); // 🔙 Cierra el modal
-      } else if (url.includes('checkout/failure')) {
-        Alert.alert('❌ Pago rechazado', 'Podés intentar nuevamente');
-        router.dismiss();
-      } else if (url.includes('checkout/pending')) {
-        Alert.alert('⏳ Pago pendiente', 'Te notificaremos cuando se confirme');
-        router.dismiss();
-      }
-    };
+const handleNavigationChange = ({ url }: { url: string }) => {
+  if (
+    url.includes('checkout/success') ||
+    url.includes('checkout/failure') ||
+    url.includes('checkout/pending')
+  ) {
+    setIsRedirecting(true);
 
-    // Cuando vuelve la app
-    Linking.getInitialURL().then((url) => {
-      if (url) handleDeepLink({ url });
-    });
+    setTimeout(() => {
+      router.replace('/(tabs)/(productos)/(home)');
+    }, 1500);
+  }
 
-    // También si el link llega mientras la app está activa
-    const subscription = Linking.addEventListener('url', handleDeepLink);
-    return () => subscription.remove();
-  }, []);
+};  
 
-  return (
-    <>
-      <Stack.Screen options={{ presentation: 'modal', title: 'Confirmar compra' }} />
-      <View style={styles.container}>
-        <Text style={styles.info}>¿Abonar la compra de {quantity} "{title}" por ${unit_price}?</Text>
-        <Button title="Iniciar pago" onPress={handleCheckout} />
-      </View>
-    </>
-  );
+return (
+  <>
+    <Stack.Screen
+      options={{ presentation: "modal", title: "Confirmar compra" }}
+    />
+
+    {isRedirecting ? (
+      <ThemedView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#000" />
+        <Text style={{ marginTop: 10 }}>Redirigiendo al catálogo...</Text>
+      </ThemedView>
+    ) : !checkoutUrl ? (
+      <>
+        <ThemedText style={styles.info}>
+          ¿Abonar la compra de {quantity} "{title}" por ${unit_price}?
+        </ThemedText>
+        <ThemedButton  onPress={handleCheckout} >Iniciar Pago</ThemedButton>
+        {/* <Button title="Iniciar pago" onPress={handleCheckout} /> */}
+      </>
+    ) : (
+      <WebView
+        source={{ uri: checkoutUrl }}
+        style={{ flex: 1, width: "100%" }}
+        onNavigationStateChange={handleNavigationChange}
+        startInLoadingState
+      />
+    )}
+  </>
+);
 }
 
 const styles = StyleSheet.create({

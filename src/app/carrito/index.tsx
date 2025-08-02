@@ -21,33 +21,16 @@ const CarritoScreen = () => {
   const cantidadProd = CartProduct.reduce(( cantidad, item) => cantidad +  item.quantity, 0); 
   const totalDecimal = parseFloat(total.toFixed(2));  
 
-  console.log(totalDecimal); 
-
-  // useEffect(() => {
-  //   const contador = () => {
-  //     const totalDecimal = CartProduct.reduce((acc, item) => acc + parseFloat(item.price) * item.quantity, 0);
-  //   }
-
-  //   contador()
-  // }, [CartProduct])
-  
-
   const payBill = () => {
-    // Aquí puedes manejar la lógica de pago, por ejemplo, abrir un modal o navegar a otra pantalla
-    // con el componente <MercadoPagoButton /> si es necesario.
-    // SetSelectedProducts(quantitySelectedProducts + 1);
-    // console.log(`quantitySelectedProducts : ${quantitySelectedProducts}`);    
-  
-  //Alert.alert("aca estoy")
+    console.log("este es parametro para el precio:",totalDecimal)
     router.push({
       pathname: '/modal/pay/pay+modal',
       params: {
-        title: 'Pago pedidos de productos',
-        quantity: cantidadProd,
+        title: `Compra online de indumentaria Pedido #[Número de pedido interno]`,
+        quantity: 1,
         unit_price: totalDecimal,
       },
     });    
-
 
   };  
 

@@ -1,5 +1,5 @@
 import { api_url } from "@/src/api/api.connect";
-import { Data } from "@/src/interfaces/data";
+import { CreateOrders, Data, OrderData } from "@/src/interfaces/data";
 import { Dataproduct } from "@/src/interfaces/product";
 
 export const getProducts = async ( desde : number , hasta : number ) => {
@@ -32,6 +32,10 @@ export const getProducts = async ( desde : number , hasta : number ) => {
   }
 }   
 
+export const setPedido = async( orderData : OrderData ) => {
+      const { data } = await api_url.post<CreateOrders>('/pedidos', orderData);
+      return data
+}
 
 export const getProduct = async ( id : number ) => {
 

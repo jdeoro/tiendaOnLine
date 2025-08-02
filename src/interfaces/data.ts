@@ -46,7 +46,35 @@ export enum Size {
     Xxl = "XXL",
 }
 
+export interface  CreateOrders {
+    ok: boolean,
+    msg: string,
+    id_pedido: number,
+    detalles_insertados: number
+}
 
+
+export interface OrderData {
+     fecha: string,
+      observaciones: string,
+      estado: EstadoPedido,
+      fecha_entrega: fechaEntrega,
+      detalles: OrderDetail[]
+}
+
+// Definición de tipos para los detalles del pedido que se envían al backend
+export interface OrderDetail {
+  id_producto: number;
+  cantidad: number;
+  precio_unitario: number;
+}
+
+export enum EstadoPedido {
+    pendiente ='pendiente', 
+    entregado = 'entregado',
+    cancelado = 'cancelado',
+    indefinido =  ''    
+}
 
 // export interface Data {
 //     ok:        boolean;
