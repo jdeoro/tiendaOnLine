@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { Text, Pressable, PressableProps, StyleSheet } from 'react-native';
+import { Pressable, PressableProps, StyleSheet, Text } from 'react-native';
 import { useThemeColor } from '../hooks/useThemeColor';
 
 interface Props extends PressableProps {
@@ -7,16 +7,17 @@ interface Props extends PressableProps {
   icon?: keyof typeof Ionicons.glyphMap;
 }
 
-const ThemedButton = ({ children, icon, ...rest }: Props) => {
+const ThemedButton = ({ children, icon, style, ...rest }: Props) => {
   const primaryColor = useThemeColor({}, 'primary');
 
   return (
     <Pressable
-      style={({ pressed }) => [
+      style={(state) => [
         {
-          backgroundColor: pressed ? primaryColor + '90' : primaryColor,
+          backgroundColor: state.pressed ? primaryColor + '90' : primaryColor,
         },
         styles.button,
+        typeof style === 'function' ? style(state) : style,
       ]}
       {...rest}
     >
@@ -33,6 +34,7 @@ const ThemedButton = ({ children, icon, ...rest }: Props) => {
     </Pressable>
   );
 };
+
 export default ThemedButton;
 
 const styles = StyleSheet.create({

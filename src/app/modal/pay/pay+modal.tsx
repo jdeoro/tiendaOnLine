@@ -1,10 +1,24 @@
+import * as Notifications from "expo-notifications";
+import { Vibration } from "react-native";
+
 import ThemedButton from "@/src/components/ThemedButton";
-import { ThemedText } from "@/src/components/ThemedText";
 import { useProductStore } from "@/src/store/UseProductStore";
+import { MaterialIcons } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { WebView } from "react-native-webview";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
 
 export default function PayModal() {
   const { placeOrder } = useProductStore();
@@ -52,29 +66,16 @@ export default function PayModal() {
     }
   };
 
-  // const handleNavigationChange = ({ url }: { url: string }) => {
-  //   //console.log("url( para redireccionar):", url);
-  //   if (
-  //     url.includes("checkout/success") ||
-  //     url.includes("checkout/failure") ||
-  //     url.includes("checkout/pending")
-  //   ) {
-  //     setIsRedirecting(true);
-
-  //     setTimeout(() => {
-  //       router.replace("/(tabs)/(productos)/(home)");
-  //     }, 1500);
-  //   }
-  // };
-
 const handleNavigationChange = ({ url }: { url: string }) => {
-  console.log("🔗 Interceptado:", url);
+  //console.log("🔗 Interceptado:", url);
 
   if (
     url.includes("checkout/success") ||
     url.includes("checkout/failure") ||
     url.includes("checkout/pending")
   ) {
+    setIsRedirecting(true);
+
     try {
       const parsedUrl = new URL(url);
 
@@ -83,96 +84,163 @@ const handleNavigationChange = ({ url }: { url: string }) => {
 
       console.log("💵 Detalles del pago:", { idPago, estado });
 
-      setPaymentInfo({ id: idPago, estado }); // 👈 esto llena la pantalla de carga
-      setIsRedirecting(true);
+      setPaymentInfo({ id: idPago, estado }); // 👈 activa pantalla de carga
 
+      Vibration.vibrate([0, 300, 150, 300]);
+
+      // ✅ Notificación local con sonido
+      Notifications.scheduleNotificationAsync({
+        content: {
+          title: "🧾 Estado del pago",
+          body:
+            estado === "approved"
+              ? "✅ Tu pago fue aprobado correctamente."
+              : estado === "pending"
+              ? "⏳ El pago está pendiente. Verificá más tarde."
+              : "❌ Hubo un problema con el pago.",
+          sound: "default", // 🔊 Sonido              
+          data: { idPago, estado },
+        },
+        trigger: null,
+      });
+
+      // ⏳ Redirección
       setTimeout(() => {
         router.replace("/(tabs)/(productos)/(home)");
       }, 4000);
+
     } catch (error) {
       console.warn("❌ Error procesando la URL:", error);
-      setIsRedirecting(true); // igual mostramos loader aunque no sepamos qué pasó
     }
   }
 };
 
+return (
+  <>
+    <Stack.Screen
+      options={{ presentation: "modal", title: "Confirmar compra" }}
+    />
 
-  return (
-    <>
-      <Stack.Screen
-        options={{ presentation: "modal", title: "Confirmar compra" }}
-      />
+    {isRedirecting ? (
+      <View
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          justifyContent: "center",
+          alignItems: "center",
+          paddingHorizontal: 20,
+          zIndex: 9999,
+        }}
+        pointerEvents="auto"
+      >
+        {paymentInfo ? (
+          <>
+            <MaterialIcons
+              name={
+                paymentInfo.estado === "approved"
+                  ? "check-circle"
+                  : paymentInfo.estado === "pending"
+                  ? "hourglass-empty"
+                  : "error"
+              }
+              size={64}
+              color={
+                paymentInfo.estado === "approved"
+                  ? "#4CAF50"
+                  : paymentInfo.estado === "pending"
+                  ? "#FFC107"
+                  : "#F44336"
+              }
+              style={{ marginBottom: 16 }}
+            />
 
-      {isRedirecting ? (
-  <View
-    style={{
-      position: "absolute",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: "rgba(0,0,0,0.5)",
-      justifyContent: "center",
-      alignItems: "center",
-      zIndex: 9999,
-      elevation: 10,
-      paddingHorizontal: 20,
-    }}
-    pointerEvents="auto"
-  >
-    {paymentInfo ? (
-      <>
-        <Text style={{ color: "#fff", fontSize: 20, fontWeight: "bold", marginBottom: 10 }}>
-          Pago {paymentInfo.estado.toUpperCase()}
-        </Text>
-        <Text style={{ color: "#fff", fontSize: 16, marginBottom: 20 }}>
-          ID de pago: {paymentInfo.id}
-        </Text>
-      </>
-    ) : (
-      <Text style={{ color: "#fff", fontSize: 16, marginBottom: 20 }}>
-        ⏳ Procesando pago...
+            <Text
+              style={{
+                color: "#fff",
+                fontSize: 22,
+                fontWeight: "bold",
+                marginBottom: 10,
+              }}
+            >
+              Pago {paymentInfo.estado.toUpperCase()}
+            </Text>
+
+            <Text
+              style={{
+                color: "#666",
+                fontSize: 16,
+                marginBottom: 25,
+                textAlign: "center",
+              }}
+            >
+              ID de pago: {paymentInfo.id}
+            </Text>
+          </>
+        ) : (
+          <>
+            <ActivityIndicator size="large" color="#fff" />
+            <Text style={{ color: "#fff", marginTop: 10 }}>
+              ⏳ Procesando pago...
+            </Text>
+          </>
+        )}
+
+        <ThemedButton
+          onPress={() => router.replace("/(tabs)/(productos)/(home)")}
+          style={{
+            width: "100%",
+            marginTop: 10,
+            paddingHorizontal: 20,
+            borderRadius: 12,
+            }}
+        >
+          Volver al catálogo
+        </ThemedButton>
+      </View>
+    ) : !checkoutUrl ? (
+  <View style={styles.centeredContainer}>
+    <View style={styles.card}>
+      <Text style={styles.title}>
+        ¿Abonar la compra de {quantity} "{title}" por ${unit_price}?
       </Text>
-    )}
 
-    <ActivityIndicator size="large" color="#fff" />
-    <Text style={{ marginTop: 10, color: "#fff" }}>
-      Redirigiendo al catálogo...
-    </Text>
+      <ThemedButton
+        onPress={handleCheckout}
+        style={{ marginTop: 20, alignSelf: "stretch" }}
+      >
+        Iniciar Pago
+      </ThemedButton>
+    </View>
   </View>
-      ) : !checkoutUrl ? (
-        <>
-          <ThemedText style={styles.info}>
-            ¿Abonar la compra de {quantity} "{title}" por ${unit_price}?
-          </ThemedText>
-          <ThemedButton onPress={handleCheckout}>Iniciar Pago</ThemedButton>
-          {/* <Button title="Iniciar pago" onPress={handleCheckout} /> */}
-        </>
-      ) : (
-        <WebView
-          source={{ uri: checkoutUrl }}
-          style={{ flex: 1, width: "100%" }}
-          startInLoadingState
-          originWhitelist={["*"]} // 👈 Permite todas las URLs, incluido prutien://
-          onShouldStartLoadWithRequest={(request) => {
-            const { url } = request;
-            //console.log("🔗 interceptado:", url);
+    ) : (
+      <WebView
+        source={{ uri: checkoutUrl }}
+        style={{ flex: 1, width: "100%" }}
+        startInLoadingState
+        originWhitelist={["*"]}
+        onShouldStartLoadWithRequest={(request) => {
+          const { url } = request;
 
-            if (
-              url.includes("checkout/success") ||
-              url.includes("checkout/failure") ||
-              url.includes("checkout/pending")
-            ) {
-              handleNavigationChange({ url }); // Ejecuta lógica de redirección
-              return false; // Detiene la navegación dentro del WebView
-            }
+          if (
+            url.includes("checkout/success") ||
+            url.includes("checkout/failure") ||
+            url.includes("checkout/pending")
+          ) {
+            handleNavigationChange({ url });
+            return false;
+          }
 
-            return true; // Permite otras URLs
-          }}
-        />
-      )}
-    </>
-  );
+          return true;
+        }}
+      />
+    )}
+  </>
+);
+
 }
 
 const styles = StyleSheet.create({
@@ -183,4 +251,30 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   info: { fontSize: 16, marginBottom: 20, textAlign: "center" },
+centeredContainer: {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  padding: 20,
+  backgroundColor: "#f2f2f2", // o el fondo que uses
+},
+card: {
+  backgroundColor: "white",
+  padding: 20,
+  borderRadius: 15,
+  width: "100%",
+  maxWidth: 350,
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 3 },
+  shadowOpacity: 0.2,
+  shadowRadius: 5,
+  elevation: 4,
+},
+title: {
+  fontSize: 18,
+  fontWeight: "600",
+  textAlign: "center",
+  marginBottom: 10,
+},
+
 });
